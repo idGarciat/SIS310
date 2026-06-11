@@ -1,58 +1,86 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="grid gap-8 xl:grid-cols-[0.95fr_1.05fr]">
-    <section class="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-cyan-950/20 backdrop-blur">
-        <p class="text-sm uppercase tracking-[0.2em] text-cyan-200">Pareto</p>
-        <h1 class="mt-3 text-3xl font-semibold text-white">Clasifica por ingreso y acumula el impacto</h1>
-        <p class="mt-3 text-sm leading-6 text-slate-300">Pega las listas en el mismo orden: nombres, unidades vendidas y precios unitarios.</p>
+<div class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+    <!-- Formulario de Configuración -->
+    <section class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 shadow-sm dark:shadow-md dark:shadow-black/20 backdrop-blur-sm">
+        <span class="inline-flex items-center rounded-md bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
+            Pareto
+        </span>
+        <h1 class="mt-4 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Análisis de Distribución</h1>
+        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Identifica el 20% de los productos que genera el 80% de los ingresos. Separa las listas en el mismo orden con comas o saltos de línea.
+        </p>
 
-        <form method="POST" class="mt-8 space-y-5">
+        <form method="POST" class="mt-6 space-y-4">
             @csrf
             @foreach ([
-                ['name' => 'nombreProductos', 'label' => 'Nombres de productos', 'placeholder' => 'Producto A, Producto B, Producto C'],
-                ['name' => 'unidades', 'label' => 'Unidades vendidas', 'placeholder' => '10, 8, 5'],
-                ['name' => 'precios', 'label' => 'Precios', 'placeholder' => '120, 150, 90'],
+                ['name' => 'nombreProductos', 'label' => 'Nombres de Productos', 'placeholder' => 'Producto A, Producto B, Producto C'],
+                ['name' => 'unidades', 'label' => 'Unidades Vendidas', 'placeholder' => '100, 80, 50'],
+                ['name' => 'precios', 'label' => 'Precios Unitarios', 'placeholder' => '12.50, 15.00, 9.00'],
             ] as $field)
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-slate-200">{{ $field['label'] }}</label>
-                    <textarea name="{{ $field['name'] }}" rows="3" class="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-cyan-400" placeholder="{{ $field['placeholder'] }}">{{ $form[$field['name']] ?? '' }}</textarea>
+                    <label for="{{ $field['name'] }}" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ $field['label'] }}</label>
+                    <textarea id="{{ $field['name'] }}" name="{{ $field['name'] }}" rows="2" class="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="{{ $field['placeholder'] }}" required>{{ $form[$field['name']] ?? '' }}</textarea>
                 </div>
             @endforeach
-            <button class="rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">Calcular Pareto</button>
+            
+            <div class="pt-2">
+                <button type="submit" class="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 active:scale-[0.98] shadow-md shadow-indigo-600/15">
+                    Calcular Pareto
+                </button>
+            </div>
         </form>
     </section>
 
-    <section class="rounded-[2rem] border border-white/10 bg-slate-900/70 p-8 shadow-xl shadow-black/20">
-        <h2 class="text-2xl font-semibold text-white">Resultado</h2>
+    <!-- Sección de Resultados -->
+    <section class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 shadow-sm dark:shadow-md dark:shadow-black/20 backdrop-blur-sm flex flex-col">
+        <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Distribución de Pareto</h2>
+        
         @if($result)
-            <div class="mt-6 overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
-                    <thead class="bg-white/5 text-slate-300">
+            <!-- Tabla de Análisis -->
+            <div class="mt-4 flex-1 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-850 text-left text-sm">
+                    <thead class="bg-slate-100/80 dark:bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                         <tr>
-                            <th class="px-4 py-3">Producto</th>
-                            <th class="px-4 py-3">Ingreso</th>
-                            <th class="px-4 py-3">% acumulado</th>
+                            <th class="px-4 py-3 font-medium">Producto</th>
+                            <th class="px-4 py-3 font-medium text-right">Ingreso Bruto</th>
+                            <th class="px-4 py-3 font-medium text-right">% Acumulado</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/10 bg-slate-950/40">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-900 bg-slate-50/10 dark:bg-slate-900/10">
                         @foreach ($result['items'] as $item)
-                            <tr>
-                                <td class="px-4 py-3">{{ $item['nombre'] }}</td>
-                                <td class="px-4 py-3">{{ number_format($item['ingreso'], 2) }}</td>
-                                <td class="px-4 py-3">{{ number_format($item['porcentajeAcumulado'], 2) }}%</td>
+                            <tr class="hover:bg-slate-100/50 dark:hover:bg-slate-900/35 transition-colors">
+                                <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white">{{ $item['nombre'] }}</td>
+                                <td class="px-4 py-2.5 text-right text-slate-600 dark:text-slate-300">{{ number_format($item['ingreso'], 2) }}</td>
+                                <td class="px-4 py-2.5 text-right font-semibold {{ $item['porcentajeAcumulado'] <= 80 ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400' }}">
+                                    {{ number_format($item['porcentajeAcumulado'], 2) }}%
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
-            <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Ingresos totales</p>
-                <p class="mt-2 text-2xl font-semibold text-white">{{ number_format($result['totales']['ingresos'], 2) }}</p>
+            <!-- Resumen Total -->
+            <div class="mt-6">
+                <div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/60 p-4">
+                    <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Ingresos Totales Acumulados</p>
+                    <p class="mt-1.5 text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                        {{ number_format($result['totales']['ingresos'], 2) }}
+                    </p>
+                </div>
             </div>
         @else
-            <p class="mt-4 text-sm leading-6 text-slate-300">Aun no hay calculo realizado.</p>
+            <div class="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-6 mt-4 bg-slate-50/20 dark:bg-slate-900/10">
+                <svg class="h-8 w-8 text-slate-400 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+                </svg>
+                <p class="text-xs text-slate-500 dark:text-slate-400 text-center max-w-[240px]">
+                    Completa la información lateral para obtener la tabla ordenada de mayor a menor contribución económica.
+                </p>
+            </div>
         @endif
     </section>
 </div>

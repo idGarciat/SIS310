@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::query()->updateOrCreate(
-            ['email' => 'admin@sistemasproduccion.test'],
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Administrador',
-                'password' => 'password',
+                'password' => 'admin123',
             ]
         );
     }

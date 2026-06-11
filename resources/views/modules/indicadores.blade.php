@@ -1,64 +1,94 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="grid gap-8 xl:grid-cols-[0.95fr_1.05fr]">
-    <section class="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-cyan-950/20 backdrop-blur">
-        <p class="text-sm uppercase tracking-[0.2em] text-cyan-200">Indicadores</p>
-        <h1 class="mt-3 text-3xl font-semibold text-white">Rentabilidad y preferencia por producto</h1>
-        <p class="mt-3 text-sm leading-6 text-slate-300">Pega las listas en el mismo orden: nombres, ingresos, costos de produccion, costos fijos y costos administrativos.</p>
+<div class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+    <!-- Formulario de Configuración -->
+    <section class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 shadow-sm dark:shadow-md dark:shadow-black/20 backdrop-blur-sm">
+        <span class="inline-flex items-center rounded-md bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
+            Indicadores
+        </span>
+        <h1 class="mt-4 text-xl font-bold tracking-tight text-slate-900 dark:text-white">Análisis de Rentabilidad</h1>
+        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Ingresa las listas en el mismo orden correlativo. Separa los valores con comas o saltos de línea.
+        </p>
 
-        <form method="POST" class="mt-8 space-y-5">
+        <form method="POST" class="mt-6 space-y-4">
             @csrf
             @foreach ([
-                ['name' => 'nombresProducto', 'label' => 'Nombres de producto', 'placeholder' => 'Producto A, Producto B, Producto C'],
-                ['name' => 'ingresos', 'label' => 'Ingresos', 'placeholder' => '1500, 2300, 1800'],
-                ['name' => 'costosProduccion', 'label' => 'Costos de produccion', 'placeholder' => '900, 1200, 1000'],
-                ['name' => 'costosFijos', 'label' => 'Costos fijos', 'placeholder' => '200, 300, 250'],
-                ['name' => 'costosAdministrativos', 'label' => 'Costos administrativos', 'placeholder' => '100, 150, 120'],
+                ['name' => 'nombresProducto', 'label' => 'Nombres de Productos', 'placeholder' => 'Producto A, Producto B, Producto C'],
+                ['name' => 'ingresos', 'label' => 'Ingresos Totales', 'placeholder' => '1500, 2300, 1800'],
+                ['name' => 'costosProduccion', 'label' => 'Costos de Producción (Mano de Obra + Materiales)', 'placeholder' => '900, 1200, 1000'],
+                ['name' => 'costosFijos', 'label' => 'Costos Fijos Asignados', 'placeholder' => '200, 300, 250'],
+                ['name' => 'costosAdministrativos', 'label' => 'Costos Administrativos', 'placeholder' => '100, 150, 120'],
             ] as $field)
                 <div>
-                    <label class="mb-2 block text-sm font-medium text-slate-200">{{ $field['label'] }}</label>
-                    <textarea name="{{ $field['name'] }}" rows="3" class="w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none focus:border-cyan-400" placeholder="{{ $field['placeholder'] }}">{{ $form[$field['name']] ?? '' }}</textarea>
+                    <label for="{{ $field['name'] }}" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ $field['label'] }}</label>
+                    <textarea id="{{ $field['name'] }}" name="{{ $field['name'] }}" rows="2" class="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="{{ $field['placeholder'] }}" required>{{ $form[$field['name']] ?? '' }}</textarea>
                 </div>
             @endforeach
-            <button class="rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">Calcular indicadores</button>
+            
+            <div class="pt-2">
+                <button type="submit" class="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 active:scale-[0.98] shadow-md shadow-indigo-600/15">
+                    Calcular indicadores
+                </button>
+            </div>
         </form>
     </section>
 
-    <section class="rounded-[2rem] border border-white/10 bg-slate-900/70 p-8 shadow-xl shadow-black/20">
-        <h2 class="text-2xl font-semibold text-white">Resultado</h2>
+    <!-- Sección de Resultados -->
+    <section class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 shadow-sm dark:shadow-md dark:shadow-black/20 backdrop-blur-sm flex flex-col">
+        <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Resultados Financieros</h2>
+        
         @if($result)
-            <div class="mt-6 overflow-hidden rounded-2xl border border-white/10">
-                <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
-                    <thead class="bg-white/5 text-slate-300">
+            <!-- Tabla de Márgenes por Producto -->
+            <div class="mt-4 flex-1 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-850 text-left text-sm">
+                    <thead class="bg-slate-100/80 dark:bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                         <tr>
-                            <th class="px-4 py-3">Producto</th>
-                            <th class="px-4 py-3">Utilidad</th>
-                            <th class="px-4 py-3">Rentabilidad</th>
+                            <th class="px-4 py-3 font-medium">Producto</th>
+                            <th class="px-4 py-3 font-medium text-right">Utilidad Neta</th>
+                            <th class="px-4 py-3 font-medium text-right">Rentabilidad</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/10 bg-slate-950/40">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-900 bg-slate-50/10 dark:bg-slate-900/10">
                         @foreach ($result['items'] as $item)
-                            <tr>
-                                <td class="px-4 py-3">{{ $item['nombre'] }}</td>
-                                <td class="px-4 py-3">{{ number_format($item['utilidad'], 2) }}</td>
-                                <td class="px-4 py-3">{{ number_format($item['rentabilidadVentas'], 2) }}%</td>
+                            <tr class="hover:bg-slate-100/50 dark:hover:bg-slate-900/35 transition-colors">
+                                <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white">{{ $item['nombre'] }}</td>
+                                <td class="px-4 py-2.5 text-right text-slate-600 dark:text-slate-300">{{ number_format($item['utilidad'], 2) }}</td>
+                                <td class="px-4 py-2.5 text-right text-indigo-600 dark:text-indigo-400 font-semibold">
+                                    {{ number_format($item['rentabilidadVentas'], 2) }}%
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
 
-            <div class="mt-6 grid gap-4 md:grid-cols-2">
-                @foreach ($result['totales'] as $label => $value)
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">{{ str_replace('_', ' ', ucfirst($label)) }}</p>
-                        <p class="mt-2 text-xl font-semibold text-white">{{ number_format($value, 2) }}</p>
-                    </div>
-                @endforeach
+            <!-- Resumen de Totales Consolidados -->
+            <div class="mt-6">
+                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-550 dark:text-slate-500 mb-3">Totales Consolidados</h3>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    @foreach ($result['totales'] as $label => $value)
+                        <div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/60 p-3.5">
+                            <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                                {{ str_replace('costos', 'C.', str_replace('Produccion', 'Prod.', str_replace('_', ' ', ucfirst($label)))) }}
+                            </p>
+                            <p class="mt-1.5 text-base font-bold text-slate-900 dark:text-white tracking-tight">
+                                {{ number_format($value, 2) }}
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         @else
-            <p class="mt-4 text-sm leading-6 text-slate-300">Todavia no hay resultados calculados.</p>
+            <div class="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-6 mt-4 bg-slate-50/20 dark:bg-slate-900/10">
+                <svg class="h-8 w-8 text-slate-400 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-1.971-.659-1.171-.879-1.171-2.303 0-3.182 1.171-.879 3.07-.879 4.242 0L15 8.818M12 3v18" />
+                </svg>
+                <p class="text-xs text-slate-550 dark:text-slate-400 text-center max-w-[240px]">
+                    Completa el formulario lateral e ingresa los datos de costos/ingresos para evaluar la rentabilidad.
+                </p>
+            </div>
         @endif
     </section>
 </div>
