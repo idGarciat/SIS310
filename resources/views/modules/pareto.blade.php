@@ -38,32 +38,37 @@
         <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Distribución de Pareto</h2>
         
         @if($result)
-            <!-- Tabla de Análisis -->
-            <div class="mt-4 flex-1 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
-                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-850 text-left text-sm">
-                    <thead class="bg-slate-100/80 dark:bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                        <tr>
-                            <th class="px-4 py-3 font-medium">Producto</th>
-                            <th class="px-4 py-3 font-medium text-right">Ingreso Bruto</th>
-                            <th class="px-4 py-3 font-medium text-right">% Acumulado</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200 dark:divide-slate-900 bg-slate-50/10 dark:bg-slate-900/10">
-                        @foreach ($result['items'] as $item)
-                            <tr class="hover:bg-slate-100/50 dark:hover:bg-slate-900/35 transition-colors">
-                                <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white">{{ $item['nombre'] }}</td>
-                                <td class="px-4 py-2.5 text-right text-slate-600 dark:text-slate-300">{{ number_format($item['ingreso'], 2) }}</td>
-                                <td class="px-4 py-2.5 text-right font-semibold {{ $item['porcentajeAcumulado'] <= 80 ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400' }}">
-                                    {{ number_format($item['porcentajeAcumulado'], 2) }}%
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+            <div class="mt-6 flex-1 flex flex-col gap-6">
+                <!-- Gráfico de Pareto -->
+                <div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/40 p-4 min-h-[350px]">
+                    <div id="paretoChart"></div>
+                </div>
 
-            <!-- Resumen Total -->
-            <div class="mt-6">
+                <!-- Tabla de Análisis -->
+                <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+                    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-850 text-left text-sm">
+                        <thead class="bg-slate-100/80 dark:bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                            <tr>
+                                <th class="px-4 py-3 font-medium">Producto</th>
+                                <th class="px-4 py-3 font-medium text-right">Ingreso Bruto</th>
+                                <th class="px-4 py-3 font-medium text-right">% Acumulado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-900 bg-slate-50/10 dark:bg-slate-900/10">
+                            @foreach ($result['items'] as $item)
+                                <tr class="hover:bg-slate-100/50 dark:hover:bg-slate-900/35 transition-colors">
+                                    <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white">{{ $item['nombre'] }}</td>
+                                    <td class="px-4 py-2.5 text-right text-slate-600 dark:text-slate-300">{{ number_format($item['ingreso'], 2) }}</td>
+                                    <td class="px-4 py-2.5 text-right font-semibold {{ $item['porcentajeAcumulado'] <= 80 ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400' }}">
+                                        {{ number_format($item['porcentajeAcumulado'], 2) }}%
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Resumen Total -->
                 <div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/60 p-4">
                     <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Ingresos Totales Acumulados</p>
                     <p class="mt-1.5 text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -71,6 +76,79 @@
                     </p>
                 </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const items = @json($result['items']);
+                    
+                    const options = {
+                        series: [{
+                            name: 'Ingreso Bruto',
+                            type: 'column',
+                            data: items.map(i => i.ingreso)
+                        }, {
+                            name: '% Acumulado',
+                            type: 'line',
+                            data: items.map(i => i.porcentajeAcumulado)
+                        }],
+                        chart: {
+                            height: 350,
+                            type: 'line',
+                            toolbar: { show: false },
+                            background: 'transparent',
+                            foreColor: isDark ? '#94a3b8' : '#64748b'
+                        },
+                        colors: ['#6366f1', '#f43f5e'],
+                        stroke: {
+                            width: [0, 4],
+                            curve: 'smooth'
+                        },
+                        plotOptions: {
+                            bar: {
+                                borderRadius: 4,
+                                columnWidth: '60%'
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        labels: items.map(i => i.nombre),
+                        yaxis: [{
+                            title: { text: 'Ingreso' },
+                            labels: {
+                                formatter: (val) => val.toFixed(2)
+                            }
+                        }, {
+                            opposite: true,
+                            title: { text: '% Acumulado' },
+                            min: 0,
+                            max: 100,
+                            labels: {
+                                formatter: (val) => val.toFixed(2) + '%'
+                            }
+                        }],
+                        grid: {
+                            borderColor: isDark ? '#1e293b' : '#e2e8f0',
+                            strokeDashArray: 4
+                        },
+                        theme: {
+                            mode: isDark ? 'dark' : 'light'
+                        },
+                        tooltip: {
+                            theme: isDark ? 'dark' : 'light',
+                            y: {
+                                formatter: function (val, { seriesIndex }) {
+                                    return seriesIndex === 0 ? '$ ' + val.toFixed(2) : val.toFixed(2) + ' %';
+                                }
+                            }
+                        }
+                    };
+
+                    const chart = new ApexCharts(document.querySelector("#paretoChart"), options);
+                    chart.render();
+                });
+            </script>
         @else
             <div class="flex-1 flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-6 mt-4 bg-slate-50/20 dark:bg-slate-900/10">
                 <svg class="h-8 w-8 text-slate-400 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Calculation;
 use App\Services\ProductionSystemService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,17 @@ class SystemController extends Controller
 {
     public function __construct(private readonly ProductionSystemService $service)
     {
+    }
+
+    private function getRecalledForm(Request $request): array
+    {
+        if ($request->has('recall')) {
+            $calc = Calculation::where('id', $request->query('recall'))
+                ->where('user_id', Auth::id())
+                ->first();
+            return $calc ? $calc->input_data : [];
+        }
+        return [];
     }
 
     public function loginForm()
@@ -58,7 +70,7 @@ class SystemController extends Controller
     public function pronosticos(Request $request)
     {
         $result = null;
-        $form = [];
+        $form = $this->getRecalledForm($request);
 
         if ($request->isMethod('post')) {
             $validated = $request->validate([
@@ -85,15 +97,28 @@ class SystemController extends Controller
                 $validated['beta'] ?? null,
                 $validated['proporcion'] ?? null
             );
+
+            if ($result) {
+                Calculation::create([
+                    'user_id' => Auth::id(),
+                    'module' => 'pronosticos',
+                    'input_data' => $validated,
+                    'result_data' => $result
+                ]);
+            }
         }
 
-        return view('modules.pronosticos', compact('result', 'form'));
+        return view('modules.pronosticos', [
+            'result' => $result,
+            'form' => $form,
+            'demandas' => $demandas ?? []
+        ]);
     }
 
     public function indicadores(Request $request)
     {
         $result = null;
-        $form = [];
+        $form = $this->getRecalledForm($request);
 
         if ($request->isMethod('post')) {
             $validated = $request->validate([
@@ -112,6 +137,15 @@ class SystemController extends Controller
                 $this->service->parseNumericList($validated['costosFijos']),
                 $this->service->parseNumericList($validated['costosAdministrativos'])
             );
+
+            if ($result) {
+                Calculation::create([
+                    'user_id' => Auth::id(),
+                    'module' => 'indicadores',
+                    'input_data' => $validated,
+                    'result_data' => $result
+                ]);
+            }
         }
 
         return view('modules.indicadores', compact('result', 'form'));
@@ -120,7 +154,7 @@ class SystemController extends Controller
     public function pareto(Request $request)
     {
         $result = null;
-        $form = [];
+        $form = $this->getRecalledForm($request);
 
         if ($request->isMethod('post')) {
             $validated = $request->validate([
@@ -135,6 +169,15 @@ class SystemController extends Controller
                 $this->service->parseNumericList($validated['unidades']),
                 $this->service->parseNumericList($validated['precios'])
             );
+
+            if ($result) {
+                Calculation::create([
+                    'user_id' => Auth::id(),
+                    'module' => 'pareto',
+                    'input_data' => $validated,
+                    'result_data' => $result
+                ]);
+            }
         }
 
         return view('modules.pareto', compact('result', 'form'));
@@ -143,7 +186,7 @@ class SystemController extends Controller
     public function pap(Request $request)
     {
         $result = null;
-        $form = [];
+        $form = $this->getRecalledForm($request);
 
         if ($request->isMethod('post')) {
             $validated = $request->validate([
@@ -184,8 +227,25 @@ class SystemController extends Controller
                 $this->service->parseNumericList($validated['demandas']),
                 $this->service->parseNumericList($validated['dias'])
             );
-        }
 
+            if ($result) {
+                Calculation::create([
+                    'user_id' => Auth::id(),
+                    'module' => 'pap',
+                    'input_data' => $validated,
+                    'result_data' => $result
+                ]);
+            }
+        }
         return view('modules.pap', compact('result', 'form'));
+    }
+
+    public function historial()
+    {
+        $calculations = Calculation::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('history', compact('calculations'));
     }
 }

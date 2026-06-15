@@ -14,6 +14,8 @@
             document.documentElement.classList.remove('dark')
         }
     </script>
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased selection:bg-indigo-500/30 selection:text-white transition-colors duration-150">
     <!-- Fondo adaptable con cuadrícula sutil y máscara radial -->
@@ -37,6 +39,7 @@
                     <a href="{{ route('indicadores') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('indicadores') ? 'text-slate-900 bg-slate-100 border-slate-200/80 dark:text-white dark:bg-slate-900 dark:border-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-900/50' }} border border-transparent">Indicadores</a>
                     <a href="{{ route('pareto') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('pareto') ? 'text-slate-900 bg-slate-100 border-slate-200/80 dark:text-white dark:bg-slate-900 dark:border-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-900/50' }} border border-transparent">Pareto</a>
                     <a href="{{ route('pap') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('pap') ? 'text-slate-900 bg-slate-100 border-slate-200/80 dark:text-white dark:bg-slate-900 dark:border-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-900/50' }} border border-transparent">PAP</a>
+                    <a href="{{ route('historial') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('historial') ? 'text-slate-900 bg-slate-100 border-slate-200/80 dark:text-white dark:bg-slate-900 dark:border-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-900/50' }} border border-transparent">Historial</a>
                     
                     <div class="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
 

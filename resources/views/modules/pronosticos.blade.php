@@ -93,24 +93,116 @@
                 </div>
             @endif
 
+            <!-- Gráfico de Pronóstico -->
+            <div class="mt-6 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/40 p-4 min-h-[350px]">
+                <div id="forecastChart"></div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const demand = @json($demandas ?? []);
+                    const forecast = @json($result['series']['forecast'] ?? $result['series'] ?? []);
+                    
+                    // Asegurar que las series tengan la misma longitud para el eje X
+                    const maxLen = Math.max(demand.length, forecast.length);
+                    const labels = Array.from({length: maxLen}, (_, i) => `P${i + 1}`);
+
+                    const options = {
+                        series: [{
+                            name: 'Demanda Real',
+                            data: demand
+                        }, {
+                            name: 'Pronóstico',
+                            data: forecast
+                        }],
+                        chart: {
+                            height: 350,
+                            type: 'line',
+                            toolbar: { show: false },
+                            background: 'transparent',
+                            foreColor: isDark ? '#94a3b8' : '#64748b',
+                            dropShadow: {
+                                enabled: true,
+                                color: '#000',
+                                top: 18,
+                                left: 7,
+                                blur: 10,
+                                opacity: 0.2
+                            }
+                        },
+                        colors: ['#6366f1', '#f43f5e'],
+                        dataLabels: {
+                            enabled: false,
+                        },
+                        stroke: {
+                            curve: 'smooth',
+                            width: 3
+                        },
+                        markers: {
+                            size: 4
+                        },
+                        xaxis: {
+                            categories: labels,
+                            title: { text: 'Período' }
+                        },
+                        yaxis: {
+                            title: { text: 'Unidades' },
+                            labels: {
+                                formatter: (val) => val.toFixed(2)
+                            }
+                        },
+                        grid: {
+                            borderColor: isDark ? '#1e293b' : '#e2e8f0',
+                            strokeDashArray: 4
+                        },
+                        theme: {
+                            mode: isDark ? 'dark' : 'light'
+                        },
+                        tooltip: {
+                            theme: isDark ? 'dark' : 'light',
+                            y: {
+                                formatter: (val) => val.toFixed(2) + ' Uds'
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            horizontalAlign: 'right',
+                        }
+                    };
+
+                    const chart = new ApexCharts(document.querySelector("#forecastChart"), options);
+                    chart.render();
+                });
+            </script>
+
             <!-- Tabla de Serie Temporal Calculada -->
             <div class="mt-6 flex-1 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-850 text-left text-sm">
                     <thead class="bg-slate-100/80 dark:bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                         <tr>
                             <th class="px-4 py-3 font-medium">Período</th>
-                            <th class="px-4 py-3 font-medium text-right">Valor Pronosticado</th>
+                            <th class="px-4 py-3 font-medium text-right">Demanda Real</th>
+                            <th class="px-4 py-3 font-medium text-right">Pronóstico</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-900 bg-slate-50/10 dark:bg-slate-900/10">
-                        @foreach (($result['series']['forecast'] ?? $result['series'] ?? []) as $index => $value)
+                        @php
+                            $demandValues = $demandas ?? [];
+                            $forecastValues = $result['series']['forecast'] ?? $result['series'] ?? [];
+                            $maxRows = max(count($demandValues), count($forecastValues));
+                        @endphp
+                        @for ($i = 0; $i < $maxRows; $i++)
                             <tr class="hover:bg-slate-100/50 dark:hover:bg-slate-900/35 transition-colors">
-                                <td class="px-4 py-2.5 text-slate-500 dark:text-slate-400">Período {{ $index + 1 }}</td>
+                                <td class="px-4 py-2.5 text-slate-500 dark:text-slate-400">P{{ $i + 1 }}</td>
+                                <td class="px-4 py-2.5 text-right text-slate-600 dark:text-slate-300">
+                                    {{ isset($demandValues[$i]) ? number_format($demandValues[$i], 2) : '-' }}
+                                </td>
                                 <td class="px-4 py-2.5 text-right font-medium text-slate-900 dark:text-white">
-                                    {{ is_null($value) ? 'N/A' : number_format((float) $value, 2) }}
+                                    {{ isset($forecastValues[$i]) && !is_null($forecastValues[$i]) ? number_format((float) $forecastValues[$i], 2) : '-' }}
                                 </td>
                             </tr>
-                        @endforeach
+                        @endfor
                     </tbody>
                 </table>
             </div>

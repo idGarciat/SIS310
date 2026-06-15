@@ -40,8 +40,84 @@
         <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Resultados Financieros</h2>
         
         @if($result)
+            <!-- Gráfico de Indicadores -->
+            <div class="mt-6 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/40 p-4 min-h-[350px]">
+                <div id="indicatorsChart"></div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const items = @json($result['items']);
+
+                    const options = {
+                        series: [{
+                            name: 'Utilidad Neta',
+                            type: 'column',
+                            data: items.map(i => i.utilidad)
+                        }, {
+                            name: 'Rentabilidad (%)',
+                            type: 'line',
+                            data: items.map(i => i.rentabilidadVentas)
+                        }],
+                        chart: {
+                            height: 350,
+                            type: 'line',
+                            toolbar: { show: false },
+                            background: 'transparent',
+                            foreColor: isDark ? '#94a3b8' : '#64748b'
+                        },
+                        colors: ['#6366f1', '#10b981'],
+                        stroke: {
+                            width: [0, 4],
+                            curve: 'smooth'
+                        },
+                        plotOptions: {
+                            bar: {
+                                borderRadius: 4,
+                                columnWidth: '50%'
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        labels: items.map(i => i.nombre),
+                        yaxis: [{
+                            title: { text: 'Utilidad ($)' },
+                            labels: {
+                                formatter: (val) => val.toFixed(2)
+                            }
+                        }, {
+                            opposite: true,
+                            title: { text: 'Rentabilidad (%)' },
+                            labels: {
+                                formatter: (val) => val.toFixed(2) + '%'
+                            }
+                        }],
+                        grid: {
+                            borderColor: isDark ? '#1e293b' : '#e2e8f0',
+                            strokeDashArray: 4
+                        },
+                        theme: {
+                            mode: isDark ? 'dark' : 'light'
+                        },
+                        tooltip: {
+                            theme: isDark ? 'dark' : 'light',
+                            y: {
+                                formatter: function (val, { seriesIndex }) {
+                                    return seriesIndex === 0 ? '$ ' + val.toFixed(2) : val.toFixed(2) + ' %';
+                                }
+                            }
+                        }
+                    };
+
+                    const chart = new ApexCharts(document.querySelector("#indicatorsChart"), options);
+                    chart.render();
+                });
+            </script>
+
             <!-- Tabla de Márgenes por Producto -->
-            <div class="mt-4 flex-1 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+            <div class="mt-6 flex-1 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-850 text-left text-sm">
                     <thead class="bg-slate-100/80 dark:bg-slate-950/80 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                         <tr>

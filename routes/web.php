@@ -19,4 +19,5 @@ Route::middleware('auth')->group(function () {
 	Route::match(['get', 'post'], '/indicadores', [SystemController::class, 'indicadores'])->name('indicadores');
 	Route::match(['get', 'post'], '/pareto', [SystemController::class, 'pareto'])->name('pareto');
 	Route::match(['get', 'post'], '/pap', [SystemController::class, 'pap'])->name('pap');
+	Route::get('/historial', [SystemController::class, 'historial'])->name('historial');
 });

@@ -123,9 +123,91 @@
                     </div>
                 @endif
 
+                <!-- Visualización de Gráficos PAP -->
+                <div class="mt-6 grid gap-6 md:grid-cols-2">
+                    <!-- Desglose de Costes (Donut) -->
+                    <div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/40 p-4">
+                        <h4 class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-4">Estructura de Costos Totales</h4>
+                        <div id="papCostDonut"></div>
+                    </div>
+                    
+                    <!-- Demanda vs Producción (Line) -->
+                    <div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/40 p-4">
+                        <h4 class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-4">Demanda vs Producción Real</h4>
+                        <div id="papDemandChart"></div>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const isDark = document.documentElement.classList.contains('dark');
+                        const totals = @json($result['totals']);
+                        const months = @json($result['months']);
+                        const demand = @json($result['demand']);
+                        const production = @json($result['production']);
+
+                        // Preparar datos para Donut (excluyendo totales generales y técnicos)
+                        const costLabels = [];
+                        const costValues = [];
+                        const excluded = ['Costo Total General', 'Dias Totales', 'Unidades Totales por trabajador', 'Demanda Total'];
+                        
+                        Object.entries(totals).forEach(([label, value]) => {
+                            if (!excluded.includes(label) && value > 0) {
+                                costLabels.push(label.replace('Costo Total de ', ''));
+                                costValues.push(value);
+                            }
+                        });
+
+                        // Configuración Donut
+                        new ApexCharts(document.querySelector("#papCostDonut"), {
+                            series: costValues,
+                            chart: { type: 'donut', height: 280, foreColor: isDark ? '#94a3b8' : '#64748b' },
+                            labels: costLabels,
+                            colors: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                            legend: { position: 'bottom', fontSize: '10px' },
+                            dataLabels: { enabled: false },
+                            stroke: { show: false },
+                            theme: { mode: isDark ? 'dark' : 'light' }
+                        }).render();
+
+                        // Configuración Demanda vs Producción
+                        new ApexCharts(document.querySelector("#papDemandChart"), {
+                            series: [{
+                                name: 'Demanda',
+                                type: 'area',
+                                data: demand
+                            }, {
+                                name: 'Producción',
+                                type: 'line',
+                                data: production
+                            }],
+                            chart: { height: 280, type: 'line', toolbar: { show: false }, foreColor: isDark ? '#94a3b8' : '#64748b' },
+                            colors: ['#6366f1', '#f43f5e'],
+                            stroke: { curve: 'smooth', width: [0, 3] },
+                            fill: { type: 'solid', opacity: [0.15, 1] },
+                            labels: months,
+                            xaxis: { labels: { style: { fontSize: '10px' } } },
+                            yaxis: { 
+                                labels: { 
+                                    style: { fontSize: '10px' },
+                                    formatter: (val) => val.toFixed(2)
+                                } 
+                            },
+                            grid: { borderColor: isDark ? '#1e293b' : '#e2e8f0', strokeDashArray: 4 },
+                            theme: { mode: isDark ? 'dark' : 'light' },
+                            tooltip: {
+                                theme: isDark ? 'dark' : 'light',
+                                y: {
+                                    formatter: (val) => val.toFixed(2)
+                                }
+                            }
+                        }).render();
+                    });
+                </script>
+
                 <!-- Desglose de Costes Auxiliares -->
-                <div class="mt-5">
-                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Desglose de Costes Totales</h3>
+                <div class="mt-6">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Resumen Económico</h3>
                     <div class="grid gap-3 sm:grid-cols-2">
                         @foreach ($result['totals'] as $label => $value)
                             @if($label !== 'Costo Total General')
