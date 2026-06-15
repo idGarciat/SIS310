@@ -1,42 +1,81 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-    <div class="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-cyan-950/30 backdrop-blur">
-        <span class="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Sistema principal</span>
-        <h1 class="mt-6 text-4xl font-semibold tracking-tight text-white md:text-6xl">Analisis de produccion con una interfaz mas limpia y moderna</h1>
-        <p class="mt-5 max-w-2xl text-base leading-7 text-slate-300 md:text-lg">Este panel centraliza los modulos de pronosticos, indicadores de preferencia, diagrama de Pareto y plan agregado de produccion en una sola experiencia clara, rapida y preparada para seguir creciendo en Laravel.</p>
-        <div class="mt-8 flex flex-wrap gap-3 text-sm">
-            <a href="{{ route('pronosticos') }}" class="rounded-full bg-cyan-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300">Abrir pronosticos</a>
-            <a href="{{ route('indicadores') }}" class="rounded-full border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">Ver indicadores</a>
+<div class="space-y-6">
+    <!-- Fila Superior: Mensaje de Bienvenida y Estadísticas Rápidas -->
+    <section class="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
+        <!-- Banner de Bienvenida -->
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 shadow-sm dark:shadow-md dark:shadow-black/20 backdrop-blur-sm">
+            <span class="inline-flex items-center rounded-md bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
+                Panel de control
+            </span>
+            <h1 class="mt-4 text-2xl font-bold tracking-tight text-slate-900 dark:text-white md:text-3xl">Planificación y Control de Operaciones</h1>
+            <p class="mt-2.5 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                Herramientas para estimación de demanda mediante series temporales, análisis de márgenes y preferencia de productos, distribución de Pareto y optimización del Plan Agregado de Producción (PAP).
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{{ route('pronosticos') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 shadow-md shadow-indigo-600/15">
+                    Iniciar pronóstico
+                </a>
+                <a href="{{ route('pap') }}" class="rounded-lg border border-slate-200 dark:border-slate-800 bg-white hover:bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white px-4 py-2 text-sm font-medium transition shadow-sm">
+                    Simular Plan Agregado
+                </a>
+            </div>
         </div>
-    </div>
 
-    <div class="grid gap-4">
-        <div class="rounded-3xl border border-white/10 bg-slate-900/60 p-6">
-            <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Modulos</p>
-            <p class="mt-2 text-3xl font-semibold text-white">4</p>
-            <p class="mt-1 text-sm text-slate-400">Funcionalidades principales listas para trabajar.</p>
+        <!-- Módulo Estadístico Rápido -->
+        <div class="flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 shadow-sm dark:shadow-md dark:shadow-black/20 backdrop-blur-sm">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Módulos habilitados</p>
+                <p class="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-white">4</p>
+            </div>
+            <div class="mt-4 border-t border-slate-100 dark:border-slate-800/60 pt-4">
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Todos los módulos matemáticos de planificación operativa se encuentran listos para trabajar.
+                </p>
+            </div>
         </div>
-        <div class="rounded-3xl border border-white/10 bg-slate-900/60 p-6">
-            <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Estado</p>
-            <p class="mt-2 text-3xl font-semibold text-white">Base publica</p>
-            <p class="mt-1 text-sm text-slate-400">La autenticacion se deja para el final, como pediste.</p>
-        </div>
-    </div>
-</section>
+    </section>
 
-<section class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-    @foreach ([
-        ['title' => 'Pronosticos', 'text' => 'Promedios moviles, suavizado exponencial y regresion lineal.'],
-        ['title' => 'Indicadores', 'text' => 'Utilidad, rentabilidad e indice comercial por producto.'],
-        ['title' => 'Pareto', 'text' => 'Ordena productos por ingreso y calcula acumulados.'],
-        ['title' => 'PAP', 'text' => 'Plan agregado de produccion con costos y alternativas.'],
-    ] as $card)
-        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/10 transition hover:-translate-y-1 hover:bg-white/10">
-            <h2 class="text-xl font-semibold text-white">{{ $card['title'] }}</h2>
-            <p class="mt-2 text-sm leading-6 text-slate-300">{{ $card['text'] }}</p>
-        </article>
-    @endforeach
-</section>
+    <!-- Fila Inferior: Tarjetas de los Módulos -->
+    <section class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        @foreach ([
+            [
+                'title' => 'Pronósticos', 
+                'text' => 'Cálculo de medias móviles simples y ponderadas, suavizado exponencial y regresión lineal con estacionalidad.',
+                'route' => 'pronosticos'
+            ],
+            [
+                'title' => 'Indicadores', 
+                'text' => 'Cálculo de utilidad neta, rentabilidad sobre ventas, contribución a la utilidad e índice comercial por producto.',
+                'route' => 'indicadores'
+            ],
+            [
+                'title' => 'Diagrama de Pareto', 
+                'text' => 'Clasificación de productos por volumen de ventas y porcentaje acumulado para identificar el 80/20 productivo.',
+                'route' => 'pareto'
+            ],
+            [
+                'title' => 'Plan Agregado (PAP)', 
+                'text' => 'Simulación de costes en 5 estrategias de planificación agregada (fuerza constante, inventario cero, subcontratación).',
+                'route' => 'pap'
+            ],
+        ] as $card)
+            <article class="flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/20 p-5 shadow-sm transition-all hover:border-slate-350 dark:hover:border-slate-700/80 hover:bg-slate-100/30 dark:hover:bg-slate-900/30">
+                <div>
+                    <h2 class="text-base font-semibold text-slate-900 dark:text-white tracking-tight">{{ $card['title'] }}</h2>
+                    <p class="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{{ $card['text'] }}</p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-slate-100 dark:border-slate-900">
+                    <a href="{{ route($card['route']) }}" class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors">
+                        Acceder al módulo
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                        </svg>
+                    </a>
+                </div>
+            </article>
+        @endforeach
+    </section>
+</div>
 @endsection
