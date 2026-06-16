@@ -41,6 +41,10 @@
                     <a href="{{ route('pap') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('pap') ? 'text-slate-900 bg-slate-100 border-slate-200/80 dark:text-white dark:bg-slate-900 dark:border-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-900/50' }} border border-transparent">PAP</a>
                     <a href="{{ route('historial') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('historial') ? 'text-slate-900 bg-slate-100 border-slate-200/80 dark:text-white dark:bg-slate-900 dark:border-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-900/50' }} border border-transparent">Historial</a>
                     
+                    @if(auth()->user()->is_admin)
+                        <a href="{{ route('admin.users') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('admin.users') ? 'text-slate-900 bg-slate-100 border-slate-200/80 dark:text-white dark:bg-slate-900 dark:border-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-900/50' }} border border-transparent">Usuarios</a>
+                    @endif
+                    
                     <div class="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
 
                     <!-- Botón Selector de Tema -->

@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Administrador',
                 'password' => 'admin123',
+                'is_admin' => true,
             ]
         );
     }

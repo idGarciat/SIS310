@@ -3,10 +3,19 @@
 @section('content')
 <div class="space-y-6">
     <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 shadow-sm dark:shadow-md dark:shadow-black/20 backdrop-blur-sm">
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Historial de Cálculos</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Historial de Cálculos {{ isset($user) ? ' - ' . $user->name : '' }}
+        </h1>
         <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-            Revisa tus análisis previos y recupera la información de simulaciones anteriores.
+            {{ isset($user) ? 'Revisando las simulaciones guardadas de este usuario.' : 'Revisa tus análisis previos y recupera la información de simulaciones anteriores.' }}
         </p>
+        @if(isset($user))
+            <div class="mt-4">
+                <a href="{{ route('admin.users') }}" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                    &larr; Volver a la lista de usuarios
+                </a>
+            </div>
+        @endif
     </div>
 
     <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 shadow-sm backdrop-blur-sm">

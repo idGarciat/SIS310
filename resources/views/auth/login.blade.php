@@ -82,6 +82,13 @@
                         Iniciar sesión
                     </button>
                 </form>
+
+                <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800/60 text-center">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        ¿No tienes cuenta? 
+                        <a href="{{ route('register') }}" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-colors">Regístrate</a>
+                    </p>
+                </div>
             </div>
         </div>
     </main>
