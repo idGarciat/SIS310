@@ -19,9 +19,14 @@ class SystemController extends Controller
     private function getRecalledForm(Request $request): array
     {
         if ($request->has('recall')) {
-            $calc = Calculation::where('id', $request->query('recall'))
-                ->where('user_id', Auth::id())
-                ->first();
+            $query = Calculation::where('id', $request->query('recall'));
+            
+            // Si el usuario no es administrador, restringir solo a sus propios cálculos
+            if (!Auth::user()?->is_admin) {
+                $query->where('user_id', Auth::id());
+            }
+
+            $calc = $query->first();
             return $calc ? $calc->input_data : [];
         }
         return [];
@@ -285,5 +290,17 @@ class SystemController extends Controller
             ->paginate(10);
 
         return view('history', compact('calculations'));
+    }
+
+    public function destroyCalculation(Calculation $calculation): RedirectResponse
+    {
+        // Si no es el dueño del registro ni es administrador, abortar con 403
+        if ($calculation->user_id !== Auth::id() && !Auth::user()->is_admin) {
+            abort(403, 'No tienes permiso para eliminar este registro.');
+        }
+
+        $calculation->delete();
+
+        return back()->with('success', 'Registro eliminado correctamente.');
     }
 }

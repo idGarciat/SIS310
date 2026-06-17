@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
 	Route::match(['get', 'post'], '/pareto', [SystemController::class, 'pareto'])->name('pareto');
 	Route::match(['get', 'post'], '/pap', [SystemController::class, 'pap'])->name('pap');
 	Route::get('/historial', [SystemController::class, 'historial'])->name('historial');
+	Route::delete('/historial/{calculation}', [SystemController::class, 'destroyCalculation'])->name('calculations.destroy');
 
     // Admin routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
