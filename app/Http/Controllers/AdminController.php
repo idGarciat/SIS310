@@ -23,6 +23,26 @@ class AdminController extends Controller
         return view('history', compact('calculations', 'user'));
     }
 
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'user_id.required' => 'Debe seleccionar un usuario.',
+            'user_id.exists' => 'El usuario seleccionado no existe.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+        ]);
+
+        $user = User::findOrFail($validated['user_id']);
+        $user->password = $validated['password'];
+        $user->save();
+
+        return back()->with('success', "Contraseña de {$user->name} actualizada correctamente.");
+    }
+
     public function toggleAdmin(User $user)
     {
         if ($user->id === auth()->id()) {

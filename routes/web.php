@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     // Admin routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::put('/users/password', [AdminController::class, 'updatePassword'])->name('users.update-password');
         Route::get('/users/{user}/history', [AdminController::class, 'userHistory'])->name('users.history');
         Route::post('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
         Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');

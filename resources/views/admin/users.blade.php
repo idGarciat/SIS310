@@ -21,12 +21,23 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-400">
+            <ul class="list-inside list-disc space-y-0.5">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 shadow-sm backdrop-blur-sm">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-left text-sm">
             <thead class="bg-slate-50/50 dark:bg-slate-950/60 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <tr>
                     <th class="px-6 py-4">Usuario</th>
                     <th class="px-6 py-4">Correo</th>
+                    <th class="px-6 py-4">Contraseña</th>
                     <th class="px-6 py-4">Rol</th>
                     <th class="px-6 py-4">Registro</th>
                     <th class="px-6 py-4 text-right">Acciones</th>
@@ -40,6 +51,17 @@
                         </td>
                         <td class="px-6 py-4 text-slate-500 dark:text-slate-400">
                             {{ $user->email }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono tracking-widest text-slate-400 dark:text-slate-500 select-none" title="La contraseña está cifrada y no puede mostrarse">••••••••</span>
+                                <button type="button" onclick="openPasswordModal({{ $user->id }}, @js($user->name))" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all border border-slate-200 dark:border-slate-700 shadow-sm" title="Cambiar contraseña">
+                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                    </svg>
+                                    Cambiar
+                                </button>
+                            </div>
                         </td>
                         <td class="px-6 py-4">
                             @if($user->is_admin)
@@ -89,4 +111,80 @@
         {{ $users->links() }}
     </div>
 </div>
+
+<!-- Modal para cambiar contraseña -->
+<div id="passwordModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+    <div class="w-full sm:w-1/2 max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xl">
+        <div class="flex items-start justify-between">
+            <div>
+                <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Cambiar contraseña</h2>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Usuario: <span id="passwordModalUser" class="font-semibold text-slate-700 dark:text-slate-300"></span>
+                </p>
+            </div>
+            <button type="button" onclick="closePasswordModal()" class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-all" aria-label="Cerrar">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form id="passwordForm" method="POST" action="{{ route('admin.users.update-password') }}" class="mt-5 space-y-4">
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="passwordUserId" name="user_id" value="{{ old('user_id') }}">
+            <input type="hidden" id="passwordUserName" name="user_name" value="{{ old('user_name') }}">
+
+            <div>
+                <label for="password" class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Nueva contraseña</label>
+                <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password"
+                    class="mt-1.5 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20">
+            </div>
+
+            <div>
+                <label for="password_confirmation" class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Confirmar contraseña</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required minlength="8" autocomplete="new-password"
+                    class="mt-1.5 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20">
+            </div>
+
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" onclick="closePasswordModal()" class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800">
+                    Cancelar
+                </button>
+                <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openPasswordModal(id, name) {
+        const modal = document.getElementById('passwordModal');
+        const idField = document.getElementById('passwordUserId');
+        const nameField = document.getElementById('passwordUserName');
+
+        if (id !== undefined) {
+            idField.value = id;
+            nameField.value = name;
+        }
+
+        document.getElementById('passwordModalUser').textContent = nameField.value;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closePasswordModal() {
+        const modal = document.getElementById('passwordModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+</script>
+
+@if($errors->has('password'))
+    <script>
+        document.addEventListener('DOMContentLoaded', () => openPasswordModal());
+    </script>
+@endif
 @endsection
